@@ -4,16 +4,11 @@ var symbol;
 $(function () {
   $(".board button").attr("disabled", true);
   $(".board> button").on("click", makeMove);
-  // Event is called when either player makes a move
   socket.on("move.made", function (data) {
-    // Render the move
     $("#" + data.position).text(data.symbol);
-    // If the symbol is the same as the player's symbol,
-    // we can assume it is their turn
-
     myTurn = data.symbol !== symbol;
 
-    // If the game is still going, show who's turn it is
+    // if game is ongoing 
     if (!isGameOver()) {
       if (gameTied()) {
         $("#messages").text("Game Drawn!");
@@ -21,40 +16,38 @@ $(function () {
       } else {
         renderTurnMessage();
       }
-      // If the game is over
-    } else {
-      // Show the message for the loser
+      
+    } 
+    //  if game is over
+    else {
+
+      // messeages for looser and winner 
       if (myTurn) {
-        $("#messages").text("Game over. You lost.");
-        // Show the message for the winner
+        $("#messages").text("You lost 😩  wana try! refresh it start the game.");
       } else {
-        $("#messages").text("Game over. You won!");
+        $("#messages").text("Game over. congratulations !! 🤗 You won! wanna play again!  ");
       }
-      // Disable the board
       $(".board button").attr("disabled", true);
     }
   });
 
-  // Set up the initial state when the game begins
+  // initial stae of the game
   socket.on("game.begin", function (data) {
     // The server will asign X or O to the player
     symbol = data.symbol;
-    // Give X the first turn
     myTurn = symbol === "X";
     renderTurnMessage();
   });
 
-  // Disable the board if the opponent leaves
+  // if opponent leave the game you can play the game 
   socket.on("opponent.left", function () {
-    $("#messages").text("Your opponent left the game.");
+    $("#messages").text("Your opponent left the game 😑.");
     $(".board button").attr("disabled", true);
   });
 });
 
 function getBoardState() {
   var obj = {};
-  // We will compose an object of all of the Xs and Ox
-  // that are on the board
   $(".board button").each(function () {
     obj[$(this).attr("id")] = $(this).text() || "";
   });
@@ -82,12 +75,7 @@ function gameTied() {
 
 function isGameOver() {
   var state = getBoardState(),
-    // One of the rows must be equal to either of these
-    // value for
-    // the game to be over
     matches = ["XXX", "OOO"],
-    // These are all of the possible combinations
-    // that would win the game
     rows = [
       state.a0 + state.a1 + state.a2,
       state.b0 + state.b1 + state.b2,
@@ -108,29 +96,27 @@ function isGameOver() {
 }
 
 function renderTurnMessage() {
-  // Disable the board if it is the opponents turn
+  // opponents turn || ypur turn
   if (!myTurn) {
-    $("#messages").text("Your opponent's turn");
+    $("#messages").text("Your opponent's turn 👉👉👉");
     $(".board button").attr("disabled", true);
-    // Enable the board if it is your turn
   } else {
-    $("#messages").text("Your turn.");
+    $("#messages").text("Your turn 👈👈👈");
     $(".board button").removeAttr("disabled");
   }
 }
 
 function makeMove(e) {
   e.preventDefault();
-  // It's not your turn
   if (!myTurn) {
     return;
   }
-  // The space is already checked
+  // it checks the space
   if ($(this).text().length) {
     return;
   }
 
-  // Emit the move to the server
+  // server connection
   socket.emit("make.move", {
     symbol: symbol,
     position: $(this).attr("id"),

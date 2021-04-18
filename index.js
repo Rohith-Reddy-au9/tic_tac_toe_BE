@@ -49,7 +49,6 @@ function joinGame(socket) {
     opponent: unmatched,
 
     symbol: "X",
-    // The socket that is associated with this player
     socket: socket,
   };
   if (unmatched) {
