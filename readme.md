@@ -1,4 +1,4 @@
-## Technologies used for Backend
+## Technologies used
 
 - Nodejs
 - Expressjs
